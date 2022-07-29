@@ -41,7 +41,7 @@ Klasa ta reprezentuje jedną kartę. Każda z kart jest reprezentowana przez atr
         }
 ```
 ## Talia.cs
-Klasa Talia reprezentuje zbiór 52 kart. Talia posiada metodę, która wypełnia ją wszystkimi rodzajami kart
+Klasa Talia reprezentuje zbiór 52 kart. Talia posiada metodę, która wypełnia ją wszystkimi rodzajami kart:
 ```cs
         public void wypelnij()                              
         {
@@ -67,6 +67,17 @@ Klasa Talia reprezentuje zbiór 52 kart. Talia posiada metodę, która wypełnia
                         idKarty++;
                     }
                 }
+            }
+        }
+```
+Oraz metodę służącą do tasowania Talii, w której każda z kart w talii zostaje zamieniona z inna kartą stojącą na losowym miejscu z przedziału 0-51:
+```cs
+        public void potasujKarty()
+        {
+            for (int i = 0; i < 52; i++)
+            {
+                int randomInt = random.Next(52);
+                (karty[randomInt], karty[i]) = (karty[i], karty[randomInt]);        //zamieniamy wartość stojącą na miejscu i z karta na miejscu losowym od 0 do 51
             }
         }
 ```
