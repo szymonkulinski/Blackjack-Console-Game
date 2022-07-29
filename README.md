@@ -158,3 +158,215 @@ Stopień ryzyka zależny jest od tego, czy kroupier wygrywa. Wygrywający kroupi
             nazwa = "Krupier";
         }
 ```
+
+## Gra.cs
+Klasa gra służy do kontrolowania przebiegu rozdań. Znajdują się tam metody min. Sprawdzające kto wygrał, rozdające karty. Metody kontrolujące zachowanie gracza takie jak np. podwajanie stawki.
+
+```cs
+        public Talia talia = new Talia();
+        public Gracz gracz = new Gracz();
+        public KrupierAI krupier = new KrupierAI();
+        int ktoraDacKarte;
+        public int postawionaSuma;
+        public int stawka;
+        public short numerWyboru;
+        public bool trwanieRozgrywki = true;
+        public Gra()
+        {
+            ktoraDacKarte = 0;
+        }
+        public void zakonczGre()
+        {
+            trwanieRozgrywki = false;
+            if(czyWygrana())                             //sprawdzamy czy gra jest wygrana
+            {
+                if (krupier.stopienRyzyka > 0)          //stopien ryzyka nie moze byc ujemy -- minimalny prog dobierania wynosi 15,
+                    krupier.stopienRyzyka--;
+                Console.WriteLine("Brawo! Wygrales");
+                gracz.zetony += stawka;
+            }
+            else if(czyRemis())                          //sprawdzamy czy remis                                              
+            {
+                Console.WriteLine("Remis!");
+                gracz.zetony += postawionaSuma;
+            }
+            else                                        //w innym wypadku przegrana
+            {
+                if (krupier.stopienRyzyka < 3)         //jesli stipienRyzyka nie przekroczy 3 to dodajemy do niego 1. Zabezpieczenie aby nie przekroczylo 18
+                    krupier.stopienRyzyka++;
+                Console.WriteLine("Przegrales!");
+            }
+        }
+        public bool czyWygrana()
+        {
+            if (gracz.powyzej21())
+                return false;
+            if ((krupier.sumaPunktow > gracz.sumaPunktow) && krupier.sumaPunktow <= 21)
+                return false;
+            if (krupier.sumaPunktow == gracz.sumaPunktow)
+                return false;
+            return true;
+        }
+        public bool czyRemis()
+        {
+            if ((krupier.sumaPunktow == gracz.sumaPunktow) || (gracz.powyzej21() && krupier.powyzej21()))
+                return true;
+            return false;
+        }
+        public void dodajGracza(Gracz gracz_)
+        {
+            gracz = gracz_;
+        }
+        public void dodawajKartyKrupierowi()
+        {
+            while (krupier.sumaPunktow < (krupier.doIluDobierac + krupier.stopienRyzyka))           //krupier przestaje grac w momencie gdy przekroczyl swoj prog dobierania
+            {
+                dodajKarteKrupierowi();
+            }
+        }
+        public void dobierzKolejnaKarte()
+        {
+            gracz.dodajKarte(talia.karty[ktoraDacKarte]);       //dodajemy graczowi jedna karte
+            ktoraDacKarte += 1;
+            numerWyboru += 1;
+        }
+        public void dodajKarteKrupierowi()
+        {
+            krupier.dodajKarte(talia.karty[ktoraDacKarte]);
+            ktoraDacKarte += 1;
+        }
+        public void podwojStawke()
+        {
+            dobierzKolejnaKarte();
+            stawka += postawionaSuma;
+            dodawajKartyKrupierowi();
+        }
+        public void przywrocUstawieniaPoczatkowe()
+        {
+            talia.potasujKarty();
+            trwanieRozgrywki = true;
+            gracz.posiadaneKarty.Clear();
+            gracz.sumaPunktow = 0;
+            krupier.posiadaneKarty.Clear();
+            krupier.sumaPunktow = 0;
+        }
+        public void rozpocznijGre(int postawionaSuma_)
+        {
+            przywrocUstawieniaPoczatkowe();
+
+            postawionaSuma = postawionaSuma_;
+            gracz.zetony -= postawionaSuma;
+            stawka = postawionaSuma * 2;
+            krupier.dodajKarte(talia.karty[ktoraDacKarte]);      //dodajemy karte krupierowi
+            ktoraDacKarte += 1;
+
+            gracz.dodajKarte(talia.karty[ktoraDacKarte]);        //dodajemy dwie karty graczowi
+            ktoraDacKarte += 1;
+            gracz.dodajKarte(talia.karty[ktoraDacKarte]);        //dodajemy dwie karty graczowi
+            ktoraDacKarte += 1;
+        }
+        public void pokazStanGry()
+        {
+            Console.Clear();
+            Console.WriteLine("Zetony gracza: {0} ", gracz.zetony);
+            Console.WriteLine("Stawka: {0}", stawka);
+            Console.WriteLine("Karty {0}(Suma: {1}): ", krupier.nazwa, krupier.sumaPunktow);
+            krupier.pokazKarty();
+            Console.WriteLine("Karty {0}(Suma: {1}): ", gracz.nazwa, gracz.sumaPunktow);
+            gracz.pokazKarty();
+        }
+    }
+ ```
+ ## Program.cs
+Klasa służąca do przyjmowania od użytkownika wyborów oraz dostarczająca mu menu. 
+```cs
+            Console.OutputEncoding = System.Text.Encoding.UTF8;     //ustawienie kodowania które zawiera symbole kart(tzn serce pik etc)
+            Gra gra = new Gra();
+            int poczatkowaLiczbaZetonow = 2000;
+            int stawianaKwota;
+            char wybor;
+            char grajWyjdz;
+            gra.talia.wypelnij();
+            gra.talia.wypelnij();
+            gra.talia.potasujKarty();
+            gra.dodajGracza(new Gracz(poczatkowaLiczbaZetonow, "Gracz"));                   //dodajemy do gry gracza z poczatkowa liczba zetonow(2000)
+
+            for(; ; )
+            {
+                Console.Clear();
+                if (gra.gracz.zetony == 0)
+                {
+                    Console.WriteLine("Masz 0 zetonow, przegrales. Kliknij dowolny przycisk zaby zaczac od nowa");
+                    gra.gracz.zetony = poczatkowaLiczbaZetonow;
+                    Console.ReadKey();
+                }
+                Console.Clear();
+                Console.Write("Posiadane zetony: {0}\n", gra.gracz.zetony);
+                Console.WriteLine("[1] Graj");
+                Console.WriteLine("[2] Wyjdz");
+                grajWyjdz = Console.ReadKey().KeyChar;
+
+                if (grajWyjdz == '2')                                                       //jesli gracz wybiera opcje wyjdz to wychodzimy z programu
+                    return;
+
+                gra.przywrocUstawieniaPoczatkowe();                                         //przed rozpoczeciem kazdej gry musimy przywrocic ustawienia poczatkowe, tzn posiadane karty, sume punktow etc
+
+                do
+                {
+                    Console.Clear();
+                    Console.Write("Posiadane zetony: {0}\n", gra.gracz.zetony);
+                    Console.Write("Ile zetonow chcesz postawic: ");
+                    stawianaKwota = int.Parse(Console.ReadLine());
+                } while (stawianaKwota > gra.gracz.zetony);
+
+                gra.rozpocznijGre(stawianaKwota);
+                gra.pokazStanGry();
+
+                if (gra.gracz.sumaPunktow == 21)
+                {
+                    gra.dodawajKartyKrupierowi();
+                    gra.pokazStanGry();
+                    gra.zakonczGre();
+                }
+
+                while (gra.trwanieRozgrywki)                                    //Gdy dana runda trwa, stan trwanie rozgrywki zmienia sie na false w przypadku wywolania funkcji gra.zakonczGre()
+                {
+                    Console.WriteLine("[d] Dobierz karte");
+                    if (gra.numerWyboru == 0)
+                        Console.WriteLine("[p] Podwoj stawke i dobierz karte");
+                    Console.WriteLine("[s] Spasuj");
+                    wybor = Console.ReadKey().KeyChar;
+                    switch (wybor)
+                    {
+                        case 'd':
+                            gra.dobierzKolejnaKarte();
+                            gra.pokazStanGry();
+                            if (gra.gracz.powyzej21() || gra.gracz.sumaPunktow == 21)
+                            {
+                                gra.dodawajKartyKrupierowi();
+                                gra.zakonczGre();
+                            }
+                            break;
+                        case 'p':
+                            if (gra.numerWyboru == 0)                        //funkcja podwojenia stawki mozlia jest tylko przy pierwszym wyborze, tzn niemozliwa jest gdy dobierzemy wiecej niz 2 karty
+                            {
+                                gra.podwojStawke();
+                            }
+                            gra.dodawajKartyKrupierowi();
+                            gra.pokazStanGry();
+                            gra.zakonczGre();
+                            break;
+                        case 's':
+                            gra.dodawajKartyKrupierowi();
+                            gra.pokazStanGry();
+                            gra.zakonczGre();
+                            break;
+                        default:
+                            gra.pokazStanGry();
+                            break;
+                    }
+                }
+                Console.WriteLine("Wcisnij dowolny przycisk aby kontynuowac...");
+                Console.ReadKey();
+            }
+```
