@@ -114,3 +114,12 @@ Rozrysowania wszyskich swoich kart korzystają z metody narysujKarte() klasy Kar
             }
         }
 ```
+Oraz metody bool sprawdzającej, czy gracz ma powyżej 21 punktów. Służy ona do sprawdzania, czy gracz przegrał
+```cs
+        public bool powyzej21()
+        {
+            if (sumaPunktow > 21)
+                return true;
+            return false;
+        }
+```
