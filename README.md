@@ -114,12 +114,47 @@ Rozrysowania wszyskich swoich kart korzystają z metody narysujKarte() klasy Kar
             }
         }
 ```
-Oraz metody bool sprawdzającej, czy gracz ma powyżej 21 punktów. Służy ona do sprawdzania, czy gracz przegrał
+Oraz metody bool sprawdzającej, czy gracz ma powyżej 21 punktów. Służy ona do sprawdzania, czy gracz przegrał.
 ```cs
         public bool powyzej21()
         {
             if (sumaPunktow > 21)
                 return true;
             return false;
+        }
+```
+## Gracz.cs
+Jest to klasa, z której korzysta gracz. W odróznieniu od kroupiera gracz posiada zmienna przechowującą liczbę żetonów, oraz zakład który gracz postawił w danym rozdaniu.
+```cs
+        public int zetony { get; set; }
+        public int zaklad { get; set; }
+        public Gracz()
+        {
+            zetony = 0;
+            nazwa = "Gracz";
+            zaklad = 0;
+            sumaPunktow = 0;
+        }
+        public Gracz(int zetony_, string nazwa_)
+        {
+            zetony = zetony_;
+            nazwa = nazwa_;
+            zaklad = 0;
+            sumaPunktow = 0;
+        }
+```
+## KroupierAI.cs
+Kroupier posiada zmienną definiującą do jakiego progu punktów domyślnie dobierać, oraz stopień ryzyka(Maksymalnie 3) który zostaje dodany do progu. Przykładowo, kroupier ze stopniem ryzyka 0 będzie dobierał karty do liczby 15 punktów, a kroupier ze stopniem ryzyka 3 będzie dobierał do 18 punktów.
+Stopień ryzyka zależny jest od tego, czy kroupier wygrywa. Wygrywający kroupier będzie zachowywał się mniej ryzykownie, niż przegrywający.
+```cs
+        public short doIluDobierac;                //liczba podstawowa do ktorej krupier dopiera karte
+        public short stopienRyzyka;                 //liczba dodajaca sie do liczby do ktorej krupier dobiera liczbe, zwieksza sie gdy przegrywa sprawiajac ze 
+                                                        //dobiera do większego progu, gdy wygrywa to próg sie zmniejsza. Prog dochodzi maksymalnie do 18.
+        public KrupierAI()
+        {
+            doIluDobierac = 15;
+            stopienRyzyka = 0;
+            sumaPunktow = 0;
+            nazwa = "Krupier";
         }
 ```
