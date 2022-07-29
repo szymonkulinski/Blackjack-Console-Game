@@ -81,3 +81,36 @@ Oraz metodę służącą do tasowania Talii, w której każda z kart w talii zos
             }
         }
 ```
+## GraczArchetyp.cs
+Jest to klasa z której dziedziczy zarówno gracz, jak i kroupier, ponieważ korzystają oni z podobnych metod.
+Każdy gracz definiowany jest poprzez nazwę, sumePunktów oraz posiadaneKarty:
+```cs
+        public List<Karta> posiadaneKarty = new List<Karta>();
+        public string nazwa { get; set; }
+        public int sumaPunktow { get; set; }
+```
+Oraz ma możliwość dobrania nowej karty:
+```cs
+        public void dodajKarte(Karta karta)
+        {
+            posiadaneKarty.Add(karta);
+            sumaPunktow += karta.wartosc;
+        }
+```
+Wyzerowania swoich kart
+```cs
+        public void wyzerujKarty()
+        {
+            posiadaneKarty.Clear();
+        }
+```
+Rozrysowania wszyskich swoich kart korzystają z metody narysujKarte() klasy Karta:
+```cs
+        public void pokazKarty()
+        {
+            foreach (var item in posiadaneKarty)
+            {
+                item.narysujKarte();
+            }
+        }
+```
