@@ -40,3 +40,33 @@ Klasa ta reprezentuje jedną kartę. Każda z kart jest reprezentowana przez atr
             Console.WriteLine("└─────────┘");
         }
 ```
+## Talia.cs
+Klasa Talia reprezentuje zbiór 52 kart. Talia posiada metodę, która wypełnia ją wszystkimi rodzajami kart
+```cs
+        public void wypelnij()                              
+        {
+            int idKarty = 0;
+            while (idKarty < 52)                        // musimy mieć 52 karty
+            {
+                for (int idKolor = 0; idKolor < 4; idKolor++)                         // dostepne sa 4 kolory
+                {
+                    for (int idOznaczenie = 0; idOznaczenie < 13; idOznaczenie++)                    // dostepne jest 13 wartosci
+                    {
+                        if (idOznaczenie == 12)
+                        {
+                            karty[idKarty] = new Karta(11, kolory[idKolor], wartosci[idOznaczenie]);    //jezeli karta to As -- wartosc = 11;
+                        }
+                        else if (idOznaczenie > 8)
+                        {
+                            karty[idKarty] = new Karta(10, kolory[idKolor], wartosci[idOznaczenie]);    //jezeli karta to Jopek, Dama, Krol -- wartosc = 10;
+                        }
+                        else
+                        {
+                            karty[idKarty] = new Karta(idOznaczenie + 2, kolory[idKolor], wartosci[idOznaczenie]); //w innym wypadku -- wartosc = oznaczenie
+                        }
+                        idKarty++;
+                    }
+                }
+            }
+        }
+```
